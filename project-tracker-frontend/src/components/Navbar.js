@@ -1,43 +1,53 @@
+import React from 'react';
+import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
 
-function Navbar() {
+export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
       <div className="container">
-        <Link to="/" className="navbar-brand">Project Tracker</Link>
-
-        <div className="collapse navbar-collapse">
-          <ul className="navbar-nav me-auto">
-            {user && (
-              <>
+        <Link className="navbar-brand" to="/">ProjectTracker</Link>
+        <button className="navbar-toggler" type="button"
+          data-bs-toggle="collapse" data-bs-target="#navMenu">
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navMenu">
+          {user && (
+            <ul className="navbar-nav me-auto">
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/projects">Projects</NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/projects/new">New</NavLink>
+              </li>
+              {user.role === 'admin' && (
                 <li className="nav-item">
-                  <Link to="/projects" className="nav-link">Projects</Link>
+                  <NavLink className="nav-link" to="/admin">Admin</NavLink>
                 </li>
-                {user.role === 'admin' && (
-                  <li className="nav-item">
-                    <Link to="/admin" className="nav-link">Admin Dashboard</Link>
-                  </li>
-                )}
-              </>
-            )}
-          </ul>
+              )}
+            </ul>
+          )}
           <ul className="navbar-nav ms-auto">
             {!user ? (
               <>
                 <li className="nav-item">
-                  <Link to="/login" className="nav-link">Login</Link>
+                  <NavLink className="nav-link" to="/login">Login</NavLink>
                 </li>
                 <li className="nav-item">
-                  <Link to="/register" className="nav-link">Register</Link>
+                  <NavLink className="nav-link" to="/register">Register</NavLink>
                 </li>
               </>
             ) : (
-              <li className="nav-item">
-                <button onClick={logout} className="btn btn-link nav-link">Logout</button>
-              </li>
+              <>
+                <li className="nav-item nav-link">Hi, {user.username}</li>
+                <li className="nav-item">
+                  <button className="btn btn-outline-light" onClick={logout}>
+                    Logout
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>
@@ -45,5 +55,3 @@ function Navbar() {
     </nav>
   );
 }
-
-export default Navbar;

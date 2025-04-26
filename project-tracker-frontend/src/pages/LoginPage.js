@@ -1,19 +1,16 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
-  const { login } = useContext(AuthContext);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
+  const { login } = useAuth();
+  const [u, setU] = useState(''),
+        [p, setP] = useState(''),
+        [err, setErr] = useState('');
 
-  const handleSubmit = async e => {
+  const onSubmit = async e => {
     e.preventDefault();
-    try {
-      await login(username, password);
-    } catch (err) {
-      setError(err.message);
-    }
+    try { await login(u, p); }
+    catch (e) { setErr(e.message); }
   };
 
   return (
@@ -21,26 +18,15 @@ export default function LoginPage() {
       <div className="col-md-5">
         <div className="card p-4">
           <h4 className="mb-3 text-center">Login</h4>
-          {error && <div className="alert alert-danger">{error}</div>}
-          <form onSubmit={handleSubmit}>
+          {err && <div className="alert alert-danger">{err}</div>}
+          <form onSubmit={onSubmit}>
             <div className="mb-3">
               <label className="form-label">Username</label>
-              <input
-                className="form-control"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                required
-              />
+              <input className="form-control" value={u} onChange={e=>setU(e.target.value)} required />
             </div>
             <div className="mb-3">
               <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
+              <input type="password" className="form-control" value={p} onChange={e=>setP(e.target.value)} required />
             </div>
             <button className="btn btn-primary w-100">Login</button>
           </form>
