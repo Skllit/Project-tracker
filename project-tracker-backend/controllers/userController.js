@@ -12,6 +12,42 @@ exports.getUsers = async (req, res, next) => {
     next(err);
   }
 };
+// controllers/userController.js
+
+// GET /api/users?username=foo&email=bar
+exports.getUsers = async (req, res, next) => {
+  try {
+    const { username, email } = req.query;
+    let users;
+    if (!username && !email) {
+      // No filters → return all
+      users = await User.find();
+    } else {
+      const filter = {};
+      if (username) filter.username = username;
+      if (email)    filter.email    = email;
+      users = await User.find(filter);
+    }
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+// GET /api/users?username=foo&email=bar
+exports.getUsers = async (req, res, next) => {
+    try {
+      const { username, email } = req.query;
+      const filter = {};
+      if (username) filter.username = username;
+      if (email)    filter.email    = email;
+  
+      // Always return 200, even if no filters or no matches
+      const users = await User.find(filter);
+      res.json(users);
+    } catch (err) {
+      next(err);
+    }
+  };
 
 // POST /api/users
 exports.createUser = async (req, res, next) => {
