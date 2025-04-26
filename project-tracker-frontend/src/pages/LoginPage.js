@@ -1,53 +1,28 @@
-// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [u, setU] = useState('');
-  const [p, setP] = useState('');
-  const [error, setError] = useState('');
-
-  const onSubmit = async e => {
-    e.preventDefault();
-    setError('');
-    try {
-      await login(u, p);
-    } catch (err) {
-      setError(err.message);
-    }
+  const [u, setU] = useState(''), [p, setP] = useState(''), [e, setE] = useState('');
+  const submit = async e1 => {
+    e1.preventDefault();
+    setE('');
+    try { await login(u,p); }
+    catch (x) { setE(x.message); }
   };
-
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-5">
-        <div className="card p-4">
-          <h4 className="mb-3 text-center">Login</h4>
-          {error && <div className="alert alert-danger">{error}</div>}
-          <form onSubmit={onSubmit}>
-            <div className="mb-3">
-              <label className="form-label">Username</label>
-              <input
-                className="form-control"
-                value={u}
-                onChange={e => setU(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                value={p}
-                onChange={e => setP(e.target.value)}
-                required
-              />
-            </div>
-            <button className="btn btn-primary w-100">Login</button>
-          </form>
-        </div>
+    <form onSubmit={submit} className="mx-auto" style={{maxWidth:400}}>
+      <h4 className="text-center mb-3">Login</h4>
+      {e&&<div className="alert alert-danger">{e}</div>}
+      <div className="mb-3">
+        <label>Username</label>
+        <input value={u} onChange={e=>setU(e.target.value)} className="form-control" required/>
       </div>
-    </div>
+      <div className="mb-3">
+        <label>Password</label>
+        <input type="password" value={p} onChange={e=>setP(e.target.value)} className="form-control" required/>
+      </div>
+      <button className="btn btn-primary w-100">Login</button>
+    </form>
   );
 }

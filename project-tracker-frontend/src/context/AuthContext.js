@@ -6,61 +6,41 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
-     // undefined = “we haven’t loaded from localStorage yet”
-      const [user, setUser] = useState(undefined);
-  const navigate = useNavigate();
+  const [user, setUser] = useState(undefined);
+  const nav = useNavigate();
 
-  // On mount, hydrate user from localStorage
   useEffect(() => {
-    
-        const saved = localStorage.getItem('user');
-       setUser(saved ? JSON.parse(saved) : null);
-       }, []);
+    const saved = localStorage.getItem('user');
+    setUser(saved ? JSON.parse(saved) : null);
+  }, []);
 
-  // LOGIN
-  const login = async (username, password) => {
-    let users = [];
-    try {
-      const res = await API.get(`/users?username=${username}`);
-      users = res.data;
-    } catch (err) {
-      console.error('Login fetch error:', err);
-    }
-    if (users.length === 0) throw new Error('User not found');
-    if (users[0].password !== password) throw new Error('Incorrect password');
+    const login = async (username, password) => {
+        try {
+          const res = await API.post('/auth/login', { username, password });
+          const u = res.data;
+          setUser(u);
+          localStorage.setItem('user', JSON.stringify(u));
+          navigate('/');
+        } catch (err) {
+          // bubble up the error message from the server
+          throw new Error(err.response?.data?.message || 'Login failed');
+        }
+      };
 
-    const u = users[0];
-    setUser(u);
-    localStorage.setItem('user', JSON.stringify(u));
-    navigate('/');
+  const register = async data => {
+    const res = await API.post('/users', data);
+    setUser(res.data);
+    localStorage.setItem('user', JSON.stringify(res.data));
+    nav('/');
   };
 
-  // REGISTER
-  const register = async ({ username, email, password }) => {
-    try {
-      const res = await API.post('/users', { username, email, password });
-      const u = res.data;
-      setUser(u);
-      localStorage.setItem('user', JSON.stringify(u));
-      navigate('/');
-    } catch (err) {
-      console.error('Registration error:', err);
-      const msg = err.response?.data?.message || 'Registration failed';
-      throw new Error(msg);
-    }
-  };
-
-  // LOGOUT
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
-    navigate('/login');
+    nav('/login');
   };
 
-    if (user === undefined) {
-    return null; // or a <Spinner /> if you like
-    }
-
+  if (user === undefined) return null;
   return (
     <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}

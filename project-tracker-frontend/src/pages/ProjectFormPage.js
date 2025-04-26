@@ -2,49 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api';
 
-const STATUSES = ['Not Started','In Progress','Completed','On Hold'];
+const STATUS = ['Not Started','In Progress','Completed','On Hold'];
 
 export default function ProjectFormPage() {
   const { id } = useParams();
   const nav    = useNavigate();
-  const isEdit = Boolean(id);
-
+  const edit   = Boolean(id);
   const [form, setForm] = useState({
-    title: '', stack: '', details: '', githubLink: '',
-    assignedUsers: '', assignedBy: '', status: STATUSES[0]
+    title:'',stack:'',details:'',githubLink:'',
+    assignedUsers:'', assignedBy:'', status:STATUS[0]
   });
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState();
 
-  useEffect(() => {
-    if (isEdit) {
-      API.get(`/projects/${id}`).then(res => {
-        const p = res.data;
+  useEffect(()=>{
+    if(edit){
+      API.get(`/projects/${id}`).then(r=>{
+        const p=r.data;
         setForm({
           title: p.title,
           stack: p.stack,
           details: p.details,
           githubLink: p.githubLink,
-          assignedUsers: p.assignedUsers.join(', '),
-          assignedBy: p.assignedBy,
+          assignedUsers: p.assignedUsers.map(u=>u.id).join(','),
+          assignedBy: p.assignedBy.id,
           status: p.status
         });
       });
     }
-  }, [id, isEdit]);
+  },[id,edit]);
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+  const change=e=>{
+    const { name,value }=e.target;
+    setForm(f=>({...f,[name]:value}));
   };
 
-  const handleSubmit = async e => {
+  const submit=async e=>{
     e.preventDefault();
-    const payload = new FormData();
-    Object.entries(form).forEach(([k,v]) => payload.append(k, v));
-    if (file) payload.append('file', file);
+    const data = new FormData();
+    Object.entries(form).forEach(([k,v])=>data.append(k,v));
+    if (file) data.append('file', file);
 
-    if (isEdit) await API.put(`/projects/${id}`, payload);
-    else        await API.post('/projects', payload);
+    if(edit) await API.put(`/projects/${id}`, data);
+    else     await API.post('/projects', data);
 
     nav('/projects');
   };
@@ -53,18 +52,18 @@ export default function ProjectFormPage() {
     <div className="row justify-content-center">
       <div className="col-md-8">
         <div className="card p-4">
-          <h3 className="mb-4">{isEdit ? 'Edit' : 'New'} Project</h3>
-          <form onSubmit={handleSubmit} encType="multipart/form-data">
-            {['title','stack','githubLink','assignedBy'].map(field => (
-              <div className="mb-3" key={field}>
+          <h3>{edit?'Edit':'New'} Project</h3>
+          <form onSubmit={submit} encType="multipart/form-data">
+            {['title','stack','githubLink','assignedBy'].map(key=>(
+              <div className="mb-3" key={key}>
                 <label className="form-label">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                  {key.charAt(0).toUpperCase()+key.slice(1)}
                 </label>
                 <input
-                  name={field}
+                  name={key}
                   className="form-control"
-                  value={form[field]}
-                  onChange={handleChange}
+                  value={form[key]}
+                  onChange={change}
                   required
                 />
               </div>
@@ -76,18 +75,18 @@ export default function ProjectFormPage() {
                 className="form-control"
                 rows="4"
                 value={form.details}
-                onChange={handleChange}
+                onChange={change}
                 required
-              ></textarea>
+              />
             </div>
             <div className="mb-3">
-              <label className="form-label">Assigned Users</label>
+              <label className="form-label">Assigned Users (comma-sep IDs)</label>
               <input
                 name="assignedUsers"
                 className="form-control"
                 value={form.assignedUsers}
-                onChange={handleChange}
-                placeholder="e.g. Alice, Bob"
+                onChange={change}
+                placeholder="e.g. 60af…1,60af…2"
               />
             </div>
             <div className="mb-3">
@@ -96,21 +95,21 @@ export default function ProjectFormPage() {
                 name="status"
                 className="form-select"
                 value={form.status}
-                onChange={handleChange}
+                onChange={change}
               >
-                {STATUSES.map(s => <option key={s}>{s}</option>)}
+                {STATUS.map(s=><option key={s}>{s}</option>)}
               </select>
             </div>
             <div className="mb-3">
-              <label className="form-label">Project File</label>
+              <label className="form-label">File</label>
               <input
                 type="file"
                 className="form-control"
-                onChange={e => setFile(e.target.files[0])}
+                onChange={e=>setFile(e.target.files[0])}
               />
             </div>
             <button className="btn btn-primary">
-              {isEdit ? 'Update' : 'Create'} Project
+              {edit?'Update':'Create'} Project
             </button>
           </form>
         </div>

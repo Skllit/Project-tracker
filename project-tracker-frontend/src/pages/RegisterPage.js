@@ -1,63 +1,38 @@
-// src/pages/RegisterPage.js
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function RegisterPage() {
   const { register } = useAuth();
-  const [form, setForm] = useState({ u:'', e:'', p:'', c:'' });
-  const [error, setError] = useState('');
-
-  const onChange = e => 
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
-
-  const onSubmit = async e => {
-    e.preventDefault();
-    setError('');
-    if (form.p !== form.c) {
-      setError("Passwords don't match");
-      return;
-    }
-    try {
-      await register({
-        username: form.u,
-        email:    form.e,
-        password: form.p
-      });
-    } catch (err) {
-      // err.message comes from AuthContext.register’s throw
-      setError(err.message);
-    }
+  const [f, setF] = useState({u:'',e:'',p:'',c:''}), [err, setErr] = useState('');
+  const change = e1=>setF(f=>({...f,[e1.target.name]:e1.target.value}));
+  const submit = async e1 => {
+    e1.preventDefault(); setErr('');
+    if (f.p!==f.c) return setErr("Passwords don't match");
+    try { await register({username:f.u,email:f.e,password:f.p}); }
+    catch(x){ setErr(x.message); }
   };
-
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-5">
-        <div className="card p-4">
-          <h4 className="mb-3 text-center">Register</h4>
-          {error && <div className="alert alert-danger">{error}</div>}
-          <form onSubmit={onSubmit}>
-            {[
-              { label: 'Username', name: 'u' },
-              { label: 'Email',    name: 'e', type: 'email' },
-              { label: 'Password', name: 'p', type: 'password' },
-              { label: 'Confirm',  name: 'c', type: 'password' },
-            ].map(f => (
-              <div className="mb-3" key={f.name}>
-                <label className="form-label">{f.label}</label>
-                <input
-                  className="form-control"
-                  name={f.name}
-                  type={f.type || 'text'}
-                  value={form[f.name]}
-                  onChange={onChange}
-                  required
-                />
-              </div>
-            ))}
-            <button className="btn btn-success w-100">Register</button>
-          </form>
+    <form onSubmit={submit} className="mx-auto" style={{maxWidth:400}}>
+      <h4 className="text-center mb-3">Register</h4>
+      {err&&<div className="alert alert-danger">{err}</div>}
+      {['u','e','p','c'].map((name, i)=>(
+        <div className="mb-3" key={name}>
+          <label>{
+            name==='u'?'Username':
+            name==='e'?'Email':
+            name==='p'?'Password':'Confirm Password'
+          }</label>
+          <input
+            name={name}
+            type={name.includes('p')?'password': name==='e'?'email':'text'}
+            className="form-control"
+            value={f[name]}
+            onChange={change}
+            required
+          />
         </div>
-      </div>
-    </div>
+      ))}
+      <button className="btn btn-success w-100">Register</button>
+    </form>
   );
 }

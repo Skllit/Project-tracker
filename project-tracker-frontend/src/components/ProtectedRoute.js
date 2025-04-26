@@ -4,17 +4,6 @@ import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children }) {
   const { user } = useAuth();
-
-  // 1️⃣ Still loading? don’t redirect yet
-  if (user === undefined) {
-    return null; // or a spinner
-  }
-
-  // 2️⃣ Not logged in? go to /login
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // 3️⃣ Logged in! Render the protected page
-  return children;
+  if (user === undefined) return null;
+  return user ? children : <Navigate to="/login" replace />;
 }

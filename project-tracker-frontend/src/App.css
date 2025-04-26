@@ -1,8 +1,6 @@
-body {
-  background-color: #f7faff;
-}
+body { background-color: #f7faff; }
 .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.card { border: none; border-radius: .5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.btn-primary, .btn-success { border-radius: .5rem; }
+.card   { border-radius: .5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.btn    { border-radius: .5rem; }
 .form-control, .form-select { border-radius: .5rem; }
-.toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 1080; }
+.toast-container { position: fixed; top:1rem; right:1rem; z-index:1080; }
